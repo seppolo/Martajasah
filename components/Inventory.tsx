@@ -1,7 +1,6 @@
 
 import React, { useState } from 'react';
 import { StockItem, Transaction } from '../types';
-import { supabaseService } from '../services/supabaseService';
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 
@@ -35,69 +34,44 @@ const Inventory: React.FC<InventoryProps> = ({ stock, setStock, transactions, se
     }) + " WIB";
 
     // --- OFFICIAL KOP SURAT ---
-    doc.setDrawColor(0, 48, 87);
-    doc.setLineWidth(0.5);
-    doc.circle(30, 25, 14, 'S');
-    doc.setFillColor(255, 204, 0);
-    doc.circle(30, 25, 11, 'F');
-    doc.setTextColor(0, 0, 0);
-    doc.setFontSize(5);
-    doc.setFont('helvetica', 'bold');
-    doc.text('BADAN GIZI', 30, 24, { align: 'center' });
-    doc.text('NASIONAL', 30, 27, { align: 'center' });
-
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(14);
-    doc.text('BADAN GIZI NASIONAL', 120, 18, { align: 'center' });
+    doc.text('BADAN GIZI NASIONAL', 105, 18, { align: 'center' });
     doc.setFontSize(12);
-    doc.text('YAYASAN SEHAT LUHUR MANDIRI', 120, 24, { align: 'center' });
-    doc.setFontSize(14);
-    doc.text('SPPG MARTAJASAH', 120, 31, { align: 'center' });
-    
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(9);
-    doc.text('Alamat : Martajasah, Kec. Bangkalan, Kab. Bangkalan-Madura. Jawa Timur, 69115.', 120, 37, { align: 'center' });
-    doc.text('Telepon : 089612827022.', 120, 42, { align: 'center' });
+    doc.text('SPPG MARTAJASAH - PROGRAM MBG', 105, 25, { align: 'center' });
     
     doc.setLineWidth(0.8);
-    doc.line(14, 46, 196, 46);
-    doc.setLineWidth(0.2);
-    doc.line(14, 47.5, 196, 47.5);
+    doc.line(14, 30, 196, 30);
 
     doc.setFontSize(11);
-    doc.setFont('helvetica', 'bold');
-    doc.text(`LAPORAN STOK OPNAME: ${activeTab === 'BAHAN' ? 'BAHAN BAKU' : 'PERALATAN'}`, 14, 56);
+    doc.text(`LAPORAN STOK: ${activeTab === 'BAHAN' ? 'BAHAN BAKU' : 'PERALATAN'}`, 14, 40);
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(8);
-    doc.text(`Dicetak pada: ${dateStr}`, 14, 61);
+    doc.text(`Dicetak pada: ${dateStr}`, 14, 45);
 
-    const tableColumn = ["No.", "Nama Barang", "Kategori", "Sistem", "Satuan", "Realtime", "Opname", "Keterangan"];
-    const tableRows: any[] = [];
-    const sortedStock = [...stock]
+    const tableColumn = ["No.", "Nama Barang", "Kategori", "Stok Sistem", "Satuan", "Kondisi"];
+    const tableRows = stock
       .filter(item => item.itemType === activeTab)
-      .sort((a, b) => a.name.localeCompare(b.name));
-
-    sortedStock.forEach((item, index) => {
-      tableRows.push([
+      .sort((a, b) => a.name.localeCompare(b.name))
+      .map((item, index) => [
         (index + 1).toString(),
         item.name,
         item.category,
         item.quantity.toString(),
         item.unit,
-        "", "", ""
+        item.quantity <= item.minThreshold ? "KRITIS" : "AMAN"
       ]);
-    });
 
     (doc as any).autoTable({
       head: [tableColumn],
       body: tableRows,
-      startY: 66,
+      startY: 50,
       theme: 'grid',
-      headStyles: { fillColor: [37, 99, 235], halign: 'center', fontSize: 8, fontStyle: 'bold' },
-      styles: { fontSize: 8, textColor: [40, 40, 40] }
+      headStyles: { fillColor: [37, 99, 235], fontSize: 8 },
+      styles: { fontSize: 8 }
     });
 
-    doc.save(`Opname_${activeTab}_${new Date().toISOString().split('T')[0]}.pdf`);
+    doc.save(`Stok_${activeTab}_${new Date().toISOString().split('T')[0]}.pdf`);
   };
 
   const handleSaveMutation = () => {
@@ -112,7 +86,7 @@ const Inventory: React.FC<InventoryProps> = ({ stock, setStock, transactions, se
       type: modalType === 'OPNAME' ? (amount >= targetItem.quantity ? 'IN' : 'OUT') : modalType,
       quantity: modalType === 'OPNAME' ? Math.abs(amount - targetItem.quantity) : amount,
       date: new Date().toISOString(),
-      notes: notes || (modalType === 'OPNAME' ? 'Stok Opname' : 'Mutasi Manual'),
+      notes: notes || (modalType === 'OPNAME' ? 'Update Stok Opname' : 'Mutasi Manual'),
       performedBy: currentUsername
     };
 
@@ -137,57 +111,84 @@ const Inventory: React.FC<InventoryProps> = ({ stock, setStock, transactions, se
   const filteredStock = stock.filter(item => item.itemType === activeTab);
 
   return (
-    <div className="h-full flex flex-col space-y-4 md:space-y-5 overflow-hidden">
+    <div className="h-full flex flex-col space-y-5 overflow-hidden">
       <header className="flex flex-col md:flex-row md:items-end justify-between shrink-0 px-1 gap-4">
-        <div className="flex bg-blue-900/20 p-1 rounded-lg w-fit border border-blue-500/10">
-           <button onClick={() => setActiveTab('BAHAN')} className={`px-4 py-1.5 rounded-md text-[9px] font-black uppercase tracking-widest transition-all ${activeTab === 'BAHAN' ? 'bg-blue-600 text-white' : 'text-slate-500'}`}>Bahan</button>
-           <button onClick={() => setActiveTab('ALAT')} className={`px-4 py-1.5 rounded-md text-[9px] font-black uppercase tracking-widest transition-all ${activeTab === 'ALAT' ? 'bg-blue-600 text-white' : 'text-slate-500'}`}>Alat</button>
+        <div className="flex bg-blue-900/30 p-1.5 rounded-2xl w-fit border border-blue-500/10">
+           <button onClick={() => setActiveTab('BAHAN')} className={`px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'BAHAN' ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-500'}`}>Bahan Baku</button>
+           <button onClick={() => setActiveTab('ALAT')} className={`px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'ALAT' ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-500'}`}>Peralatan</button>
         </div>
-        <div className="flex flex-wrap gap-2">
-           <button onClick={exportToPDF} className="bg-emerald-600/10 text-emerald-600 border border-emerald-500/20 px-4 py-2.5 rounded-xl font-black text-[9px] uppercase tracking-widest flex items-center shadow-lg hover:bg-emerald-600/20 transition-all">
-             <i className="fas fa-file-pdf mr-1.5 text-xs"></i> Export PDF
+        <div className="flex flex-wrap gap-2.5">
+           <button onClick={exportToPDF} className="bg-emerald-600/10 text-emerald-500 border border-emerald-500/20 px-4 py-2.5 rounded-xl font-black text-[9px] uppercase tracking-[0.2em] flex items-center shadow-md hover:bg-emerald-600/20 transition-all">
+             <i className="fas fa-file-pdf mr-2 text-xs"></i> Export PDF
            </button>
            {canManageStock && (
-              <button onClick={() => { setModalType('IN'); setIsModalOpen(true); }} className="glossy-button text-white px-4 py-2.5 rounded-xl font-black text-[9px] uppercase tracking-widest flex items-center shadow-lg active:scale-95 transition-all">
-                <i className="fas fa-plus mr-1.5"></i> Mutasi
+              <button onClick={() => { setModalType('IN'); setIsModalOpen(true); }} className="glossy-button text-white px-5 py-2.5 rounded-xl font-black text-[9px] uppercase tracking-[0.2em] flex items-center shadow-lg active:scale-95 transition-all">
+                <i className="fas fa-arrows-rotate mr-2 text-xs"></i> Mutasi Stok
               </button>
            )}
         </div>
       </header>
-      <section className="flex-1 overflow-y-auto custom-scrollbar pr-1.5 pb-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
+
+      <section className="flex-1 overflow-y-auto custom-scrollbar pr-1.5 pb-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredStock.map((item) => (
-            <div key={item.id} className={`glass-panel rounded-[1.25rem] p-4 flex items-center justify-between group hover:border-blue-500/40 transition-all duration-300 relative ${highlightId === item.id ? 'border-blue-400' : ''}`}>
-               <div className="flex items-center space-x-3.5">
-                  <div className={`inventory-icon-box w-10 h-10 rounded-xl flex items-center justify-center text-lg shrink-0 ${item.quantity <= item.minThreshold ? 'bg-orange-500/10 text-orange-400 border border-orange-500/20' : 'bg-blue-500/10 text-blue-400 border border-blue-500/20'}`}>
+            <div key={item.id} className={`glass-panel rounded-[1.75rem] p-5 flex items-center justify-between group hover:border-blue-500/50 transition-all duration-500 relative ${highlightId === item.id ? 'border-blue-400 ring-2 ring-blue-400/20' : ''}`}>
+               <div className="flex items-center space-x-4 min-w-0 flex-1">
+                  <div className={`w-11 h-11 rounded-2xl flex items-center justify-center text-xl shrink-0 transition-transform group-hover:scale-110 duration-500 ${item.quantity <= item.minThreshold ? 'bg-red-500/10 text-red-400 border border-red-500/20' : 'bg-blue-500/10 text-blue-400 border border-blue-500/20'}`}>
                      <i className={`fas ${item.itemType === 'BAHAN' ? 'fa-box-open' : 'fa-toolbox'}`}></i>
                   </div>
-                  <div>
-                    <h4 className="font-bold text-[11px] text-slate-100 leading-tight">{item.name}</h4>
-                    <p className={`text-[9px] font-black uppercase mt-0.5 tracking-wider ${item.quantity <= item.minThreshold ? 'text-orange-400' : 'text-blue-400'}`}>
-                      {item.quantity} {item.unit}
-                    </p>
+                  <div className="min-w-0">
+                    <h4 className="font-black text-[11px] text-slate-100 leading-tight uppercase truncate tracking-tight">{item.name}</h4>
+                    <div className="flex items-baseline mt-1 space-x-1.5">
+                      <p className={`text-sm font-black ${item.quantity <= item.minThreshold ? 'text-red-400' : 'text-blue-400'}`}>{item.quantity}</p>
+                      <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest">{item.unit}</p>
+                    </div>
                   </div>
                </div>
+               {item.quantity <= item.minThreshold && (
+                 <div className="bg-red-500/20 w-2 h-2 rounded-full animate-pulse border border-red-500/40"></div>
+               )}
             </div>
           ))}
         </div>
       </section>
 
       {isModalOpen && (
-        <div className="fixed inset-0 bg-slate-950/90 backdrop-blur-xl z-[1000] flex items-center justify-center p-3">
-          <div className="bg-[#0f172a] w-full max-sm rounded-[2rem] border border-blue-500/20 shadow-2xl p-7">
-            <h3 className="font-black text-base text-white uppercase tracking-widest mb-6">Mutasi Barang</h3>
+        <div className="fixed inset-0 bg-slate-950/95 backdrop-blur-2xl z-[2000] flex items-center justify-center p-4">
+          <div className="bg-[#0f172a] w-full max-w-sm rounded-[2.5rem] border border-blue-500/20 shadow-2xl p-8 space-y-6 animate-modal-enter">
+            <h3 className="font-black text-sm text-white uppercase tracking-widest text-center">Mutasi Stok Gudang</h3>
+            
+            <div className="flex bg-slate-900/50 p-1.5 rounded-xl border border-white/5">
+              {(['IN', 'OUT', 'OPNAME'] as const).map(type => (
+                <button key={type} onClick={() => setModalType(type)} className={`flex-1 py-2 rounded-lg text-[8px] font-black uppercase tracking-widest transition-all ${modalType === type ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-500'}`}>
+                  {type === 'IN' ? 'Masuk' : type === 'OUT' ? 'Keluar' : 'Opname'}
+                </button>
+              ))}
+            </div>
+
             <div className="space-y-4">
-               <select value={selectedItemId} onChange={(e) => setSelectedItemId(e.target.value)} className="w-full glass-panel border-0 bg-slate-900/50 rounded-xl px-4 py-3 text-xs text-white outline-none font-bold">
-                 <option value="">Pilih Barang...</option>
-                 {stock.map(s => <option key={s.id} value={s.id} className="bg-slate-900">{s.name}</option>)}
-               </select>
-               <input type="number" value={amount || ''} onChange={(e) => setAmount(Number(e.target.value))} placeholder="Jumlah" className="w-full glass-panel border-0 bg-slate-900/50 rounded-xl px-4 py-3 text-xs text-white outline-none font-bold" />
-               <div className="flex gap-3 pt-4">
-                 <button onClick={() => setIsModalOpen(false)} className="flex-1 bg-white/5 text-slate-400 py-3.5 rounded-xl font-black text-[9px] uppercase">Batal</button>
-                 <button onClick={handleSaveMutation} className="flex-1 glossy-button text-white py-3.5 rounded-xl font-black text-[9px] uppercase">Simpan</button>
+               <div className="space-y-1.5">
+                 <label className="text-[7px] font-black text-blue-400 uppercase tracking-widest px-1">Pilih Barang</label>
+                 <select value={selectedItemId} onChange={(e) => setSelectedItemId(e.target.value)} className="w-full glass-panel border-0 bg-slate-900/80 rounded-xl px-5 py-4 text-xs text-white outline-none font-bold appearance-none cursor-pointer">
+                   <option value="">-- Cari Nama Barang --</option>
+                   {stock.sort((a,b) => a.name.localeCompare(b.name)).map(s => <option key={s.id} value={s.id} className="bg-slate-900">{s.name}</option>)}
+                 </select>
                </div>
+               
+               <div className="space-y-1.5">
+                 <label className="text-[7px] font-black text-blue-400 uppercase tracking-widest px-1">Jumlah</label>
+                 <input type="number" value={amount || ''} onChange={(e) => setAmount(Number(e.target.value))} placeholder="Masukkan angka..." className="w-full glass-panel border-0 bg-slate-900/80 rounded-xl px-5 py-4 text-xs text-white outline-none font-bold placeholder:opacity-20" />
+               </div>
+
+               <div className="space-y-1.5">
+                 <label className="text-[7px] font-black text-blue-400 uppercase tracking-widest px-1">Catatan (Opsional)</label>
+                 <input type="text" value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Contoh: Belanja Pasar" className="w-full glass-panel border-0 bg-slate-900/80 rounded-xl px-5 py-4 text-xs text-white outline-none font-bold" />
+               </div>
+            </div>
+
+            <div className="flex gap-3 pt-4">
+              <button onClick={() => setIsModalOpen(false)} className="flex-1 bg-white/5 text-slate-500 py-4 rounded-2xl font-black text-[9px] uppercase tracking-widest hover:text-white transition-all">Batal</button>
+              <button onClick={handleSaveMutation} className="flex-1 glossy-button text-white py-4 rounded-2xl font-black text-[9px] uppercase tracking-[0.3em] shadow-xl">Simpan</button>
             </div>
           </div>
         </div>
