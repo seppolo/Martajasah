@@ -5,7 +5,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>MARTAJASAH - Kitchen Management</title>
-    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <!-- Shim process for browser environment to prevent crash on process.env access -->
@@ -49,7 +48,7 @@
           transition: background-color 0.3s ease, color 0.3s ease;
         }
 
-        /* 🕵️ GLOBAL SCROLLBAR HIDING (Disguised but functional) */
+        /* ðµï¸ GLOBAL SCROLLBAR HIDING (Disguised but functional) */
         *::-webkit-scrollbar {
           display: none !important;
           width: 0 !important;
@@ -61,7 +60,7 @@
           scrollbar-width: none !important;
         }
 
-        /* 🌌 DARK MODE STYLES */
+        /* ð DARK MODE STYLES */
         .glass-panel {
           background: rgba(15, 23, 42, 0.6);
           backdrop-filter: blur(12px);
@@ -70,7 +69,7 @@
           box-shadow: 0 4px 18px 0 rgba(0, 0, 0, 0.3);
         }
 
-        /* 🎨 LIGHT MODE (BLUEPRINT/SKETCH) STYLES */
+        /* ð¨ LIGHT MODE (BLUEPRINT/SKETCH) STYLES */
         .light-mode {
           background-color: var(--blueprint-paper) !important;
           color: var(--blueprint-ink) !important;
@@ -100,7 +99,7 @@
           box-shadow: none !important;
         }
 
-        /* 🖊️ BUTTON STYLES IN LIGHT MODE */
+        /* ðï¸ BUTTON STYLES IN LIGHT MODE */
         .light-mode button,
         .light-mode .glossy-button,
         .light-mode [role="button"],
@@ -112,7 +111,7 @@
           text-shadow: none !important;
         }
 
-        /* 🎯 PRIMARY ACTION COMPONENTS - Updated for Light Mode */
+        /* ð¯ PRIMARY ACTION COMPONENTS - Updated for Light Mode */
         .light-mode .glossy-button,
         .light-mode button.bg-blue-600,
         .light-mode button.bg-indigo-600,
@@ -133,7 +132,7 @@
           font-weight: 900 !important;
         }
 
-        /* 🎯 ICONS IN LIGHT MODE */
+        /* ð¯ ICONS IN LIGHT MODE */
         .light-mode i {
           color: var(--blueprint-ink) !important;
         }
@@ -173,7 +172,7 @@
           border-radius: 12px !important;
         }
 
-        /* 🏛️ MODAL / FORM CONTAINER BACKGROUNDS (IVORY/PUTIH GADING) */
+        /* ðï¸ MODAL / FORM CONTAINER BACKGROUNDS (IVORY/PUTIH GADING) */
         .light-mode div[role="dialog"] > div, 
         .light-mode form,
         .light-mode div[role="dialog"] .glass-panel,
@@ -184,7 +183,7 @@
           background-color: var(--ivory-white) !important;
         }
 
-        /* 📱 MOBILE NAVIGATION (REMOVE BORDERS IN LIGHT MODE) */
+        /* ð± MOBILE NAVIGATION (REMOVE BORDERS IN LIGHT MODE) */
         .light-mode .glass-nav {
           background: rgba(255, 255, 255, 0.98) !important;
           border: none !important;
@@ -197,7 +196,7 @@
           color: var(--blueprint-ink) !important;
         }
 
-        /* 🥛 IVORY BACKGROUNDS FOR ALL FORM ELEMENTS */
+        /* ð¥ IVORY BACKGROUNDS FOR ALL FORM ELEMENTS */
         .light-mode input, 
         .light-mode select, 
         .light-mode textarea,
@@ -231,7 +230,7 @@
 
         .animate-modal-enter { animation: modal-smooth-enter 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
 
-        /* 🌓 THEME TOGGLE SWITCH STYLES */
+        /* ð THEME TOGGLE SWITCH STYLES */
         .theme-switch {
           position: relative;
           display: inline-block;
@@ -275,22 +274,9 @@
         input:checked + .slider .fa-sun { opacity: 0.3 !important; }
         input:checked + .slider .fa-moon { opacity: 1 !important; }
     </style>
-<script type="importmap">
-{
-  "imports": {
-    "react/": "https://esm.sh/react@^19.2.3/",
-    "react": "https://esm.sh/react@^19.2.3",
-    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
-    "recharts": "https://esm.sh/recharts@^3.6.0",
-    "jspdf": "https://esm.sh/jspdf@^2.5.1",
-    "jspdf-autotable": "https://esm.sh/jspdf-autotable@^3.8.2",
-    "@google/genai": "https://esm.sh/@google/genai@^1.34.0",
-    "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@^2.45.0"
-  }
-}
-</script>
 </head>
 <body class="bg-[#0a1128] text-slate-100">
     <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
 </body>
 </html>
