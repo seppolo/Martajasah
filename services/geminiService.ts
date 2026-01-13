@@ -5,7 +5,7 @@ import { GoogleGenAI } from "@google/genai";
  * Initialize the Google GenAI SDK
  * Using the API_KEY from process.env as per requirements.
  */
-const getAIClient = () => new GoogleGenAI({ apiKey: process.env.API_KEY });
+const getAIClient = () => new GoogleGenAI({ apiKey: process.env.API_KEY || 'FAKE_API_KEY_FOR_DEVELOPMENT' });
 
 /** 
  * Mendapatkan rekomendasi menu harian berdasarkan stok yang ada menggunakan Gemini 3 Flash
