@@ -1,0 +1,8 @@
+{
+  "name": "V14",
+  "description": "Premium kitchen management system with a high-end dark blue glossy interface and local logistical tracking.",
+  "requestFramePermissions": [
+    "camera",
+    "geolocation"
+  ]
+}
